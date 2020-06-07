@@ -1,45 +1,110 @@
-call plug#begin('~/.config/nvim/plugged')
-
+call plug#begin(stdpath('data') . '/plugged')
+Plug 'scrooloose/nerdtree'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'Lokaltog/vim-easymotion'
+Plug 'godlygeek/tabular'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-speeddating'
+Plug 'tommcdo/vim-exchange'
+Plug 'mbbill/undotree'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
+Plug 'alx741/vim-stylishask'
+Plug 'rafalbromirski/vim-aurora'
+Plug 'tikhomirov/vim-glsl'
+Plug 'airblade/vim-gitgutter'
+Plug 'skywind3000/asyncrun.vim'
 Plug 'alx741/vim-hindent' " Optional
 Plug 'mpickering/hlint-refactor-vim'
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': './install.sh'
     \ }
-
 call plug#end()
-"
-" TextEdit might fail if hidden is not set.
-set hidden
 
-" Some servers have issues with backup files, see #649.
-set nobackup
-set nowritebackup
-
-" Give more space for displaying messages.
-set cmdheight=2
-
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=300
-
-" Don't pass messages to |ins-completion-menu|.
-set shortmess+=c
-
-" Always show the signcolumn, otherwise it would shift the text each time
-" diagnostics appear/become resolved.
-if has("patch-8.1.1564")
-  " Recently vim can merge signcolumn and number column into one
-  set signcolumn=number
-else
-  set signcolumn=yes
+if &t_Co > 2 || has("gui_running")
+    syntax on
 endif
 
+if &t_Co >= 256 || has('gui_running')
+    set guifont=Iosevka\ Fixed:h10
+	colorscheme aurora
+endif
+
+" EDITOR CONFIGURATION
+" Leader
+let mapleader=","
+
+" Quickly edit/reload the vimrc file
+nmap <silent> <leader>ev :e $MYVIMRC<CR>
+nmap <silent> <leader>sv :so $MYVIMRC<CR>
+
+" Basic configuration
+set hidden                                  " Hide buffers instead of closing them
+set nowrap                                  " don''t wrap lines
+set tabstop=2                               " a tab is four spaces
+set backspace=indent,eol,start              " allow backspacing over everything in insert mode
+set autoindent                              " always set autoindenting on
+set copyindent                              " copy the previous indentation on autoindenting
+set number                                  " always show line numbers
+set relativenumber
+set shiftwidth=2                            " number of spaces to use for autoindenting
+set shiftround                              " use multiple of shiftwidth when indenting with '<' and '>'
+set showmatch                               " set show matching parenthesis
+set ignorecase                              " ignore case when searching
+set smartcase                               " ignore case if search pattern is all lowercase,
+                                            "    case-sensitive otherwise
+set smarttab                                " insert tabs on the start of a line according to
+                                            "    shiftwidth, not tabstop
+set nohlsearch                              " don't highlight search terms
+set incsearch                               " show search matches as you type
+set history=1000                            " remember more commands and search history
+set undolevels=1000                         " use many muchos levels of undo
+set wildignore=*.swp,*.bak,*.pyc,*.class
+set title                                   " change the terminal's title
+set novisualbell                            " don't beep
+set noerrorbells                            " don't beep
+set nobackup
+set noswapfile
+set expandtab                               " always use spaces instead of tab characters
+set softtabstop=4                           " set the number of columns for TAB
+
+set cmdheight=2
+set updatetime=300
+set signcolumn=yes
+
+" Enter paste mode when pasting a large amount of text
+set pastetoggle=<F3>
+
+" Disable arrow keys to navigate
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
+
+" Easy window navigation
+map <C-h> <C-w>h
+map <C-j> <C-w>j
+map <C-k> <C-w>k
+map <C-l> <C-w>l
+
+"Easy buffer navigation
+nnoremap gb :ls<CR>:b!<Space>
+
+" Tags navigation mappings
+map <silent> <leader>b :tjump <C-R><C-W><CR>
+map <silent> <leader>B :pop<CR>
+
+" Relative line number toggle
+augroup ToggleRelativeNumber
+    autocmd InsertEnter * :setlocal norelativenumber
+    autocmd InsertLeave * :setlocal relativenumber
+augroup END
+
+" CoC
 " Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
@@ -94,12 +159,13 @@ nmap <leader>rn <Plug>(coc-rename)
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
-augroup mygroup
+augroup cocgroup
   autocmd!
   " Setup formatexpr specified filetype(s).
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
   " Update signature help on jump placeholder.
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  autocmd BufWritePost *.hs call CocAction('format')
 augroup end
 
 " Applying codeAction to the selected region.
@@ -107,7 +173,7 @@ augroup end
 xmap <leader>a  <Plug>(coc-codeaction-selected)
 nmap <leader>a  <Plug>(coc-codeaction-selected)
 
-" Remap keys for applying codeAction to the current buffer.
+" Remap keys for applying codeAction to the current line.
 nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
@@ -140,7 +206,7 @@ command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organize
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Mappings using CoCList:
 " Show all diagnostics.
@@ -159,3 +225,61 @@ nnoremap <silent> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+
+" stylish-haskell
+let g:stylishask_command = globpath(system('stack path --compiler-tools-bin')[:-2], 'stylish-haskell*')
+
+" fugitive
+map <silent> <leader>gs :Gstatus<CR>
+map <silent> <leader>gc :Gcommit<CR>
+map <silent> <leader>gd :Gdiff<CR>
+map <silent> <leader>gp :Gpush<CR>
+map <silent> <leader>gb :Gblame<CR>
+
+" easymotion
+map  / <Plug>(easymotion-sn)
+omap / <Plug>(easymotion-tn)
+map  n <Plug>(easymotion-next)
+map  N <Plug>(easymotion-prev)
+let g:EasyMotion_smartcase = 1
+
+" tabular
+nmap <Leader>a= :Tabularize /=<CR>
+vmap <Leader>a= :Tabularize /=<CR>
+nmap <Leader>a: :Tabularize /:\zs<CR>
+vmap <Leader>a: :Tabularize /:\zs<CR>
+nmap <Leader>a<bar> :Tabularize /<bar><CR>
+vmap <Leader>a<bar> :Tabularize /<bar><CR>
+
+" gitgutter
+nnoremap ]h <Plug>(GitGutterNextHunk)
+nnoremap [h <Plug>(GitGutterPrevHunk)
+
+let g:quickfix_timers = {}
+
+function! ScrollToBottom(id)
+  normal G
+endfunction
+
+function! AutoScroll()
+  let id = timer_start(200, 'ScrollToBottom', {'repeat': -1})
+  let g:quickfix_timers[bufnr('#')] = id
+endfunction
+
+function! StopAutoScroll()
+    call timer_stop(g:quickfix_timers[bufnr('#')])
+    unlet g:quickfix_timers[bufnr('#')]
+endfunction
+
+" Development
+augroup CompileCode
+  autocmd!
+  autocmd FileType haskell nnoremap <silent> <F5> :call asyncrun#run('!', {'cwd': '<root>', 'save': 2}, 'stack build --fast --color never')<CR>
+  autocmd FileType haskell nnoremap <silent> <C-F5> :call asyncrun#run('!', {'cwd': '<root>', 'silent': 1, 'hidden': 1}, 'stack exec '.substitute(getcwd(), '^.*[/\\]', '', '').'-exe')<CR>
+  autocmd FileType haskell nnoremap <silent> <S-F5> :call asyncrun#run('!', {'cwd': '<root>', 'save': 2}, 'stack test --fast --color never')<CR>
+  autocmd BufWinEnter *.hs silent! copen | :wincmd p
+  autocmd BufWinLeave *.hs cclose
+  autocmd WinEnter * if &buftype == 'quickfix' | :call AutoScroll() | endif
+  autocmd WinLeave * if &buftype == 'quickfix' | :call StopAutoScroll() | endif
+augroup END
+
