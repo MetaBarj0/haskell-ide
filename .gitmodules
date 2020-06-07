@@ -1,0 +1,3 @@
+[submodule "haskell-machine"]
+	path = haskell-machine
+	url = git@github.com:MetaBarj0/DockerBox.git

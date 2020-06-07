@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  haskell-ide:
+    image: haskell-ide:1.0.0
+    deploy:
+      replicas: 1
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 10
+        window: 60s
