@@ -5,7 +5,7 @@ through vagrant and Metabarj0's DockerBox.
 
 ## Usage
 
-1. Clone it : `git clone https://github.com/MetaBarj0/haskell-ide.git`
+1. Clone it : `git clone --recurse-submodules https://github.com/MetaBarj0/haskell-ide.git`
 2. Copy `.env/dist.haskell-ide` to `machine/.env`
 3. Modify the environment values to better suit your need and machine
 capacity in `machine/.env` file

@@ -44,6 +44,8 @@ function createSecrets() {
 EOF
   )"
 
+  [ -z "$ssh_dir" ] && return
+
   if [ ! -d "$ssh_dir" ]; then
     error "The directory $ssh_dir does not exist. SSH key secrets cannot be created as they should be."
     exit 1
