@@ -1,6 +1,7 @@
 FROM alpine:3.12 as base
 
-RUN adduser -h /home/hsdev -D hsdev hsdev
+RUN addgroup -g 1000 hsdev \
+    && adduser -u 1000 -G hsdev -h /home/hsdev -D hsdev
 
 RUN apk add --no-cache \
   curl \
@@ -16,7 +17,10 @@ RUN curl -sSL https://get.haskellstack.org/ | sh
 
 USER hsdev
 
-RUN stack config set system-ghc --global true
+RUN mkdir -p /home/hsdev/.ssh \
+    && chmod 0700 /home/hsdev/.ssh
+
+RUN stack upgrade && stack config set system-ghc --global true
 
 FROM base as builder
 
@@ -43,6 +47,7 @@ FROM base
 USER root
 
 RUN apk add --no-cache \
+  screen \
   neovim \
   neovim-doc \
   nodejs \
@@ -69,8 +74,8 @@ RUN sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/p
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
 RUN mkdir -p .config/nvim/plugged
-COPY init.vim coc-settings.json .config/nvim/
-
-RUN nvim +PlugInstall +qa
 
 ENTRYPOINT [ "/usr/local/sbin/entrypoint.sh" ]
+
+LABEL maintainer=MetaBarj0
+LABEL role=haskell-ide

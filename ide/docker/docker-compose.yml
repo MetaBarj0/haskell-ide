@@ -1,0 +1,49 @@
+version: "3.8"
+services:
+  haskell-ide:
+    image: haskell-ide:latest
+
+    deploy:
+      replicas: 1
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+        delay: 1s
+        max_attempts: 10
+        window: 60s
+
+    configs:
+      - source: init_vim
+        target: /home/hsdev/.config/nvim/init.vim
+        uid: '1000'
+        gid: '1000'
+        mode: 0640
+      - source: coc_settings_json
+        target: /home/hsdev/.config/nvim/coc-settings.json
+        uid: '1000'
+        gid: '1000'
+        mode: 0640
+
+    secrets:
+      - source: ssh_public_key
+        target: /home/hsdev/.ssh/id_rsa.pub
+        uid: '1000'
+        gid: '1000'
+        mode: 0400
+      - source: ssh_secret_key
+        target: /home/hsdev/.ssh/id_rsa
+        uid: '1000'
+        gid: '1000'
+        mode: 0400
+
+configs:
+  init_vim:
+    file: ./init.vim
+  coc_settings_json:
+    file: ./coc-settings.json
+  
+secrets:
+  ssh_public_key:
+    external: true
+  ssh_secret_key:
+    external: true
