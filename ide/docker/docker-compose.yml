@@ -17,12 +17,22 @@ services:
         target: /home/hsdev/.config/nvim/init.vim
         uid: '1000'
         gid: '1000'
-        mode: 0640
+        mode: 0644
+      - source: plugins_vim
+        target: /home/hsdev/.config/nvim/plugins.vim
+        uid: '1000'
+        gid: '1000'
+        mode: 0644
       - source: coc_settings_json
         target: /home/hsdev/.config/nvim/coc-settings.json
         uid: '1000'
         gid: '1000'
-        mode: 0640
+        mode: 0644
+      - source: screenrc
+        target: /home/hsdev/.screenrc
+        uid: '1000'
+        gid: '1000'
+        mode: 0644
 
     secrets:
       - source: ssh_public_key
@@ -39,8 +49,12 @@ services:
 configs:
   init_vim:
     file: ./init.vim
+  plugins_vim:
+    file: ./plugins.vim
   coc_settings_json:
     file: ./coc-settings.json
+  screenrc:
+    file: ./.screenrc
   
 secrets:
   ssh_public_key:

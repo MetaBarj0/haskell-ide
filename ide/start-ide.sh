@@ -32,6 +32,14 @@ function buildDockerImageIfNotExists(){
 
   [ ! -z "$existing" ] && return
 
+  if ! ensureAvailableDiskSpace; then
+    error "At least 12 giga-bytes are necessary to build the environment."
+    error "Please add storage to your machine then restart it with run vagrant up --provision"
+    error "Make sure the DOCKER_VOLUME_AUTO_EXTEND variable is set to 1 in your .env file."
+
+    #exit 1
+  fi
+
   docker build -t haskell-ide "$(getScriptDir)/docker"
 
   docker image prune -f
@@ -83,16 +91,8 @@ function createSwarmIfNotExists() {
 
 function enterIDE() {
   while [ -z "$(getIDEContainerId)" ]; do sleep 1; done
-  docker exec -it "$(getIDEContainerId)" screen -R
+  docker exec -it -e TERM=xterm-256color "$(getIDEContainerId)" screen -R
 }
-
-if ! ensureAvailableDiskSpace; then
-  error "At least 12 giga-bytes are necessary to build the environment."
-  error "Please add storage to your machine then restart it with run vagrant up --provision"
-  error "Make sure the DOCKER_VOLUME_AUTO_EXTEND variable is set to 1 in your .env file."
-
-  exit 1
-fi
 
 buildDockerImageIfNotExists
 createSwarmIfNotExists
