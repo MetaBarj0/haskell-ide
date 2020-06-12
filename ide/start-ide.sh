@@ -37,7 +37,7 @@ function buildDockerImageIfNotExists(){
     error "Please add storage to your machine then restart it with run vagrant up --provision"
     error "Make sure the DOCKER_VOLUME_AUTO_EXTEND variable is set to 1 in your .env file."
 
-    #exit 1
+    exit 1
   fi
 
   docker build -t haskell-ide "$(getScriptDir)/docker"
