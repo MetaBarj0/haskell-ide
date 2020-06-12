@@ -12,7 +12,7 @@ Plug 'mbbill/undotree'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neovimhaskell/haskell-vim'
 Plug 'alx741/vim-stylishask'
-Plug 'rafalbromirski/vim-aurora'
+Plug 'junegunn/seoul256.vim'
 Plug 'tikhomirov/vim-glsl'
 Plug 'airblade/vim-gitgutter'
 Plug 'skywind3000/asyncrun.vim'

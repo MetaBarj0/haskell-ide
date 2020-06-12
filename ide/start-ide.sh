@@ -77,6 +77,10 @@ function getIDEContainerId() {
   echo "$(docker ps -q -f ancestor=haskell-ide)"
 }
 
+function getHealthyIDEContainerId() {
+  echo "$(docker ps -q -f health=healthy)"
+}
+
 function createSwarmIfNotExists() {
   docker node ls -q 1>/dev/null 2>&1
 
@@ -90,7 +94,12 @@ function createSwarmIfNotExists() {
 }
 
 function enterIDE() {
+  echo "Starting haskell-ide service..."
   while [ -z "$(getIDEContainerId)" ]; do sleep 1; done
+
+  echo "Configuring haskell-ide service..."
+  while [ -z "$(getHealthyIDEContainerId)" ]; do sleep 1; done
+
   docker exec -it -e TERM=xterm-256color "$(getIDEContainerId)" screen -R
 }
 

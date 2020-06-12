@@ -4,10 +4,8 @@ if &t_Co > 2 || has("gui_running")
     syntax on
 endif
 
-if &t_Co >= 256 || has('gui_running')
-    set guifont=Iosevka\ Fixed:h10
-	colorscheme aurora
-endif
+" set termguicolors     " enable true colors support
+colorscheme seoul256
 
 " EDITOR CONFIGURATION
 " Leader
@@ -55,10 +53,10 @@ set signcolumn=yes
 set pastetoggle=<F3>
 
 " Disable arrow keys to navigate
-map <up> <nop>
-map <down> <nop>
-map <left> <nop>
-map <right> <nop>
+" map <up> <nop>
+" map <down> <nop>
+" map <left> <nop>
+" map <right> <nop>
 
 " Easy window navigation
 map <C-h> <C-w>h

@@ -1,7 +1,7 @@
 FROM alpine:3.12 as base
 
 RUN addgroup -g 1000 hsdev \
-    && adduser -u 1000 -G hsdev -h /home/hsdev -D hsdev
+  && adduser -u 1000 -G hsdev -h /home/hsdev -D hsdev
 
 RUN apk add --no-cache \
   curl \
@@ -18,7 +18,7 @@ RUN curl -sSL https://get.haskellstack.org/ | sh
 USER hsdev
 
 RUN mkdir -p /home/hsdev/.ssh \
-    && chmod 0700 /home/hsdev/.ssh
+  && chmod 0700 /home/hsdev/.ssh
 
 RUN stack upgrade && stack config set system-ghc --global true
 
@@ -55,32 +55,31 @@ RUN apk add --no-cache \
   nodejs \
   yarn
 
-RUN mkdir -p /home/hsdev/.local/bin
-RUN chown hsdev:hsdev -R /home/hsdev/.local/bin
+RUN mkdir -p /home/hsdev/.local/bin \
+  && chown -R hsdev:hsdev /home/hsdev/
 
-COPY --from=builder /home/hsdev/.local/bin/hie /home/hsdev/.local/bin/
-COPY --from=builder /home/hsdev/.local/bin/hie-wrapper /home/hsdev/.local/bin/
-COPY --from=builder /home/hsdev/.local/bin/hlint /home/hsdev/.local/bin/
-COPY --from=builder /home/hsdev/.local/bin/refactor /home/hsdev/.local/bin/
-COPY --from=builder /home/hsdev/.local/bin/stylish-haskell /home/hsdev/.local/bin/
-COPY --from=builder /home/hsdev/.hoogle/ /home/hsdev/.hoogle/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hie /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hie-wrapper /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hlint /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/refactor /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/stylish-haskell /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.hoogle/ /home/hsdev/.hoogle/
 
 ENV PATH="${PATH}:/home/hsdev/.local/bin/"
 
-RUN chown hsdev:hsdev -R /home/hsdev/
-
 RUN mkdir -p /usr/local/sbin
-COPY entrypoint.sh /usr/local/sbin/
-RUN chmod +x /usr/local/sbin/entrypoint.sh
+COPY entrypoint.sh healthcheck.sh /usr/local/sbin/
+RUN chmod +x /usr/local/sbin/entrypoint.sh /usr/local/sbin/healthcheck.sh
 
 USER hsdev
 
 RUN sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
 RUN mkdir -p .config/nvim/plugged
 
 ENTRYPOINT [ "/usr/local/sbin/entrypoint.sh" ]
+HEALTHCHECK --interval=30s --timeout=120s --start-period=5s --retries=3 CMD [ "/usr/local/sbin/healthcheck.sh" ]
 
 LABEL maintainer=MetaBarj0
 LABEL role=haskell-ide
