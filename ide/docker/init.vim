@@ -256,4 +256,3 @@ augroup CompileCode
   autocmd WinEnter * if &buftype == 'quickfix' | :call AutoScroll() | endif
   autocmd WinLeave * if &buftype == 'quickfix' | :call StopAutoScroll() | endif
 augroup END
-
