@@ -45,7 +45,7 @@ function buildDockerImageIfNotExists(){
   docker image prune -f
 }
 
-function createSecrets() {
+function createExternalSecrets() {
   local ssh_dir="$(
     gdbmtool -r /home/docker/kvstore.db << EOF
       fetch ssh_dir
@@ -69,8 +69,8 @@ EOF
     exit 1
   fi
 
-  docker secret create ssh_public_key "${ssh_dir}/id_rsa.pub"
-  docker secret create ssh_secret_key "${ssh_dir}/id_rsa"
+  docker secret create haskell-ide_ssh_public_key "${ssh_dir}/id_rsa.pub"
+  docker secret create haskell-ide_ssh_secret_key "${ssh_dir}/id_rsa"
 }
 
 function getIDEContainerId() {
@@ -81,6 +81,13 @@ function getHealthyIDEContainerId() {
   echo "$(docker ps -q -f health=healthy)"
 }
 
+function deployOrUpdateStack() {
+  docker stack deploy \
+    --with-registry-auth \
+    -c "$(getScriptDir)/docker/docker-compose.yml" \
+    haskell-ide 1>/dev/null 2>&1
+}
+
 function createSwarmIfNotExists() {
   docker node ls -q 1>/dev/null 2>&1
 
@@ -88,9 +95,9 @@ function createSwarmIfNotExists() {
 
   docker swarm init 1>/dev/null 2>&1
 
-  createSecrets 1>/dev/null
+  createExternalSecrets 1>/dev/null
 
-  docker stack deploy -c "$(getScriptDir)/docker/docker-compose.yml" haskell-ide 1>/dev/null
+  deployOrUpdateStack
 }
 
 function enterIDE() {
@@ -99,6 +106,8 @@ function enterIDE() {
 
   echo "Configuring haskell-ide service..."
   while [ -z "$(getHealthyIDEContainerId)" ]; do sleep 1; done
+
+  deployOrUpdateStack
 
   docker exec -it -e TERM=xterm-256color "$(getIDEContainerId)" screen -R
 }

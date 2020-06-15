@@ -35,12 +35,12 @@ services:
         mode: 0644
 
     secrets:
-      - source: ssh_public_key
+      - source: haskell-ide_ssh_public_key
         target: /home/hsdev/.ssh/id_rsa.pub
         uid: '1000'
         gid: '1000'
         mode: 0400
-      - source: ssh_secret_key
+      - source: haskell-ide_ssh_secret_key
         target: /home/hsdev/.ssh/id_rsa
         uid: '1000'
         gid: '1000'
@@ -57,7 +57,7 @@ configs:
     file: ./.screenrc
   
 secrets:
-  ssh_public_key:
+  haskell-ide_ssh_public_key:
     external: true
-  ssh_secret_key:
+  haskell-ide_ssh_secret_key:
     external: true
