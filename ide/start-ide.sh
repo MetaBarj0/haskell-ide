@@ -96,18 +96,16 @@ function createSwarmIfNotExists() {
   docker swarm init 1>/dev/null 2>&1
 
   createExternalSecrets 1>/dev/null
-
-  deployOrUpdateStack
 }
 
 function enterIDE() {
+  deployOrUpdateStack
+
   echo "Starting haskell-ide service..."
   while [ -z "$(getIDEContainerId)" ]; do sleep 1; done
 
   echo "Configuring haskell-ide service..."
   while [ -z "$(getHealthyIDEContainerId)" ]; do sleep 1; done
-
-  deployOrUpdateStack
 
   docker exec -it -e TERM=xterm-256color "$(getIDEContainerId)" screen -R
 }

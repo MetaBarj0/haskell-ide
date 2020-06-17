@@ -46,6 +46,10 @@ services:
         gid: '1000'
         mode: 0400
 
+    volumes:
+      - data:/home/hsdev/data
+      - nvim_plugged:/home/hsdev/.local/share/nvim/plugged
+
 configs:
   init_vim:
     file: ./init.vim
@@ -61,3 +65,7 @@ secrets:
     external: true
   haskell-ide_ssh_secret_key:
     external: true
+
+volumes:
+  data :
+  nvim_plugged :

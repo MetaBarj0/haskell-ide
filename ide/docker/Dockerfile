@@ -76,10 +76,13 @@ USER hsdev
 RUN sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-RUN mkdir -p .config/nvim/plugged
+RUN mkdir -p .config .local/share/nvim/plugged data
+
+VOLUME [ "/home/hsdev/data" ]
+VOLUME [ "/home/hsdev/.local/share/nvim/plugged" ]
 
 ENTRYPOINT [ "/usr/local/sbin/entrypoint.sh" ]
-HEALTHCHECK --interval=30s --timeout=120s --start-period=5s --retries=3 CMD [ "/usr/local/sbin/healthcheck.sh" ]
+HEALTHCHECK --interval=5s --timeout=120s --start-period=5s --retries=3 CMD [ "/usr/local/sbin/healthcheck.sh" ]
 
 LABEL maintainer=MetaBarj0
 LABEL role=haskell-ide
