@@ -139,7 +139,17 @@ augroup cocgroup
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
   " Update signature help on jump placeholder.
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-  autocmd BufWritePost *.hs call CocAction('format')
+  autocmd BufWritePre *.hs call RecordCursorPos()
+  function RecordCursorPos()
+    let w:cursorLine = line('.')
+    let w:cursorColumn = col('.')
+  endfunction
+
+  autocmd BufWritePost *.hs call FormatFile()
+  function FormatFile()
+    call CocAction('format')
+    call cursor(w:cursorLine, w:cursorColumn)
+  endfunction
 augroup end
 
 " Applying codeAction to the selected region.

@@ -41,6 +41,7 @@ RUN stack install.hs hie-8.8.3
 RUN stack install hlint
 RUN stack install apply-refact
 RUN stack install stylish-haskell
+RUN stack install ormolu
 RUN stack --stack-yaml=stack-8.8.3.yaml exec hoogle generate
 
 FROM base
@@ -63,6 +64,7 @@ COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hie-wrapper /home
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hlint /home/hsdev/.local/bin/
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/refactor /home/hsdev/.local/bin/
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/stylish-haskell /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/ormolu /home/hsdev/.local/bin/
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.hoogle/ /home/hsdev/.hoogle/
 
 ENV PATH="${PATH}:/home/hsdev/.local/bin/"
