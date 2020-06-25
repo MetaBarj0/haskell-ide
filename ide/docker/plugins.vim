@@ -16,10 +16,12 @@ Plug 'junegunn/seoul256.vim'
 Plug 'tikhomirov/vim-glsl'
 Plug 'airblade/vim-gitgutter'
 Plug 'skywind3000/asyncrun.vim'
-Plug 'alx741/vim-hindent' " Optional
 Plug 'mpickering/hlint-refactor-vim'
 Plug 'autozimu/LanguageClient-neovim', {
     \ 'branch': 'next',
     \ 'do': './install.sh'
     \ }
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'ryanoasis/vim-devicons'
 call plug#end()

@@ -255,13 +255,17 @@ function! StopAutoScroll()
     unlet g:quickfix_timers[bufnr('#')]
 endfunction
 
+" vim-airline
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme='angr'
+
 " Development
 augroup CompileCode
   autocmd!
   autocmd FileType haskell nnoremap <silent> <F5> :call asyncrun#run('!', {'cwd': '<root>', 'save': 2}, 'stack build --fast --color never')<CR>
   autocmd FileType haskell nnoremap <silent> <C-F5> :call asyncrun#run('!', {'cwd': '<root>', 'silent': 1, 'hidden': 1}, 'stack exec '.substitute(getcwd(), '^.*[/\\]', '', '').'-exe')<CR>
   autocmd FileType haskell nnoremap <silent> <S-F5> :call asyncrun#run('!', {'cwd': '<root>', 'save': 2}, 'stack test --fast --color never')<CR>
-  autocmd BufWinEnter *.hs silent! copen | :wincmd p
+  autocmd BufWinEnter *.hs silent! copen | :wincmd p | NERDTree | :wincmd p
   autocmd BufWinLeave *.hs cclose
   autocmd WinEnter * if &buftype == 'quickfix' | :call AutoScroll() | endif
   autocmd WinLeave * if &buftype == 'quickfix' | :call StopAutoScroll() | endif
