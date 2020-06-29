@@ -30,18 +30,22 @@ function ensureAvailableDiskSpace() {
 function buildDockerImageIfNotExists(){
   local existing="$(docker image ls -q --filter=reference=haskell-ide:latest --filter=label=role=haskell-ide --filter=label=maintainer=MetaBarj0)"
 
-  [ ! -z "$existing" ] && return
+  [ ! -z "$existing" ] && return 0
 
   if ! ensureAvailableDiskSpace; then
     error "At least 12 giga-bytes are necessary to build the environment."
     error "Please add storage to your machine then restart it with run vagrant up --provision"
     error "Make sure the DOCKER_VOLUME_AUTO_EXTEND variable is set to 1 in your .env file."
-
-    exit 1
+    error "If the build fails due to lack of storage space, extend it then it will resume at the last point it failed."
   fi
 
   docker build -t haskell-ide "$(getScriptDir)/docker"
 
+  if [ $? -ne 0 ]; then
+    return 1
+  fi
+
+  docker ps -aq | xargs docker rm
   docker image prune -f
 }
 
@@ -52,25 +56,25 @@ function createExternalSecrets() {
 EOF
   )"
 
-  [ -z "$ssh_dir" ] && return
+  [ -z "$ssh_dir" ] && return 1
 
   if [ ! -d "$ssh_dir" ]; then
     error "The directory $ssh_dir does not exist. SSH key secrets cannot be created as they should be."
-    exit 1
+    return 1
   fi
 
   if [ ! -f "${ssh_dir}/id_rsa.pub" ]; then
     error "Cannot find the file ${ssh_dir}/id_rsa.pub. Public key secret cannot be created as it should be."
-    exit 1
+    return 1
   fi
 
   if [ ! -f "${ssh_dir}/id_rsa" ]; then
     error "Cannot find the file ${ssh_dir}/id_rsa. Secret key secret cannot be created as it should be."
-    exit 1
+    return 1
   fi
 
-  docker secret create haskell-ide_ssh_public_key "${ssh_dir}/id_rsa.pub"
-  docker secret create haskell-ide_ssh_secret_key "${ssh_dir}/id_rsa"
+  docker secret create haskell-ide_ssh_public_key "${ssh_dir}/id_rsa.pub" \
+    && docker secret create haskell-ide_ssh_secret_key "${ssh_dir}/id_rsa"
 }
 
 function getIDEContainerId() {
@@ -101,15 +105,20 @@ function createSwarmIfNotExists() {
 function enterIDE() {
   deployOrUpdateStack
 
+  if  [ $? -ne 0 ]; then
+    error "Error while deploying/updating the docker stack."
+    return 1
+  fi
+
   echo "Starting haskell-ide service..."
   while [ -z "$(getIDEContainerId)" ]; do sleep 1; done
 
   echo "Configuring haskell-ide service..."
   while [ -z "$(getHealthyIDEContainerId)" ]; do sleep 1; done
 
-  docker exec -it -e TERM=xterm-256color "$(getIDEContainerId)" screen -R
+  docker exec -it "$(getIDEContainerId)" screen -R
 }
 
-buildDockerImageIfNotExists
-createSwarmIfNotExists
-enterIDE
+buildDockerImageIfNotExists \
+  && createSwarmIfNotExists \
+  && enterIDE
