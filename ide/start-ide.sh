@@ -45,7 +45,12 @@ function buildDockerImageIfNotExists(){
     return 1
   fi
 
-  docker ps -aq | xargs docker rm
+  local orphanContainers="$(docker ps -aq)"
+
+  if [ ! -z "$orphanContainers" ]; then
+    docker rm "$orphanContainers"
+  fi
+
   docker image prune -f
 }
 
@@ -85,7 +90,7 @@ function getHealthyIDEContainerId() {
   echo "$(docker ps -q -f health=healthy)"
 }
 
-function deployOrUpdateStack() {
+function resetStack() {
   docker stack deploy \
     --with-registry-auth \
     -c "$(getScriptDir)/docker/docker-compose.yml" \
@@ -95,21 +100,19 @@ function deployOrUpdateStack() {
 function createSwarmIfNotExists() {
   docker node ls -q 1>/dev/null 2>&1
 
-  [ $? -eq 0 ] && return
+  [ $? -eq 0 ] && return 0
 
   docker swarm init 1>/dev/null 2>&1
 
   createExternalSecrets 1>/dev/null
+
+  if ! resetStack; then
+    error "Error while deploying/resetting the docker stack."
+    return 1
+  fi
 }
 
 function enterIDE() {
-  deployOrUpdateStack
-
-  if  [ $? -ne 0 ]; then
-    error "Error while deploying/updating the docker stack."
-    return 1
-  fi
-
   echo "Starting haskell-ide service..."
   while [ -z "$(getIDEContainerId)" ]; do sleep 1; done
 

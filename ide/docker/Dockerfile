@@ -78,7 +78,7 @@ USER hsdev
 RUN sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
   https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-RUN mkdir -p .config .local/share/nvim/plugged data
+RUN mkdir -p .config/nvim .local/share/nvim/plugged data
 
 VOLUME [ "/home/hsdev/data" ]
 VOLUME [ "/home/hsdev/.local/share/nvim/plugged" ]

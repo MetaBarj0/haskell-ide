@@ -1,6 +1,6 @@
 * text=auto
 
 *.sh text eol=lf
-*.vim text eol=lf
-*.json text eol=lf
+*.vim.dist text eol=lf
+*.json.dist text eol=lf
 .screenrc text eol=lf

@@ -13,18 +13,18 @@ services:
         window: 60s
 
     configs:
-      - source: init_vim
-        target: /home/hsdev/.config/nvim/init.vim
+      - source: init_vim_dist
+        target: /home/hsdev/.config/nvim/init.vim.dist
         uid: '1000'
         gid: '1000'
         mode: 0644
-      - source: plugins_vim
-        target: /home/hsdev/.config/nvim/plugins.vim
+      - source: plugins_vim_dist
+        target: /home/hsdev/.config/nvim/plugins.vim.dist
         uid: '1000'
         gid: '1000'
         mode: 0644
-      - source: coc_settings_json
-        target: /home/hsdev/.config/nvim/coc-settings.json
+      - source: coc_settings_json_dist
+        target: /home/hsdev/.config/nvim/coc-settings.json.dist
         uid: '1000'
         gid: '1000'
         mode: 0644
@@ -56,16 +56,16 @@ services:
       - nvim_plugged:/home/hsdev/.local/share/nvim/plugged
 
 configs:
-  init_vim:
-    file: ./init.vim
-  plugins_vim:
-    file: ./plugins.vim
-  coc_settings_json:
-    file: ./coc-settings.json
+  init_vim_dist:
+    file: ./init.vim.dist
+  plugins_vim_dist:
+    file: ./plugins.vim.dist
+  coc_settings_json_dist:
+    file: ./coc-settings.json.dist
   screenrc:
     file: ./.screenrc
   gitconfig_dist:
-    file: ./gitconfig.dist
+    file: ./.gitconfig.dist
   
 secrets:
   haskell-ide_ssh_public_key:
