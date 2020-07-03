@@ -9,6 +9,10 @@ if [ ! -f plugins.vim ]; then
   cp -a plugins.vim.dist plugins.vim
 fi
 
+if [ ! -f coc-settings.json ]; then
+  cp -a coc-settings.json.dist coc-settings.json
+fi
+
 cd - 1>/dev/null 2>&1
 
 cd ~
