@@ -90,23 +90,51 @@ function getHealthyIDEContainerId() {
   echo "$(docker ps -q -f health=healthy)"
 }
 
-function resetStack() {
+function deployStack() {
   docker stack deploy \
     --with-registry-auth \
     -c "$(getScriptDir)/docker/docker-compose.yml" \
     haskell-ide 1>/dev/null 2>&1
 }
 
-function createSwarmIfNotExists() {
+function isStackExisting() {
   docker node ls -q 1>/dev/null 2>&1
+}
 
-  [ $? -eq 0 ] && return 0
+function resetStackIfNeeded() {
+  if ! isStackExisting; then
+    return 0
+  fi
+
+  local resetAsked="$(
+    gdbmtool -r /home/docker/kvstore.db << EOF
+      fetch reset_stack_on_provision
+EOF
+  )"
+
+  [ -z "$resetAsked" ] && return 0
+  [ "$resetAsked" == '0' ] && return 0
+
+  local value="$(echo $resetAsked | tr [:lower:] [:upper:])"
+  [ "$value" == 'FALSE' ] && return 0
+
+  docker swarm leave -f 1>/dev/null 2>&1
+
+  gdbmtool /home/docker/kvstore.db << EOF
+    delete reset_stack_on_provision
+EOF
+}
+
+function createSwarmIfNotExists() {
+  if isStackExisting; then
+    return 0
+  fi
 
   docker swarm init 1>/dev/null 2>&1
 
   createExternalSecrets 1>/dev/null
 
-  if ! resetStack; then
+  if ! deployStack; then
     error "Error while deploying/resetting the docker stack."
     return 1
   fi
@@ -123,5 +151,6 @@ function enterIDE() {
 }
 
 buildDockerImageIfNotExists \
+  && resetStackIfNeeded \
   && createSwarmIfNotExists \
   && enterIDE
