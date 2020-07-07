@@ -9,7 +9,8 @@ RUN apk add --no-cache \
   git \
   icu \
   ncurses \
-  musl-dev
+  musl-dev \
+  ninja
 
 WORKDIR /home/hsdev
 
@@ -42,6 +43,7 @@ RUN stack install hlint
 RUN stack install apply-refact
 RUN stack install stylish-haskell
 RUN stack install ormolu
+RUN stack install hoogle
 RUN stack --stack-yaml=stack-8.8.3.yaml exec hoogle generate
 
 FROM base
@@ -65,6 +67,7 @@ COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hlint /home/hsdev
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/refactor /home/hsdev/.local/bin/
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/stylish-haskell /home/hsdev/.local/bin/
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/ormolu /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hoogle /home/hsdev/.local/bin/
 COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.hoogle/ /home/hsdev/.hoogle/
 
 ENV PATH="${PATH}:/home/hsdev/.local/bin/"
