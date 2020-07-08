@@ -98,7 +98,7 @@ function deployStack() {
 }
 
 function isStackExisting() {
-  docker node ls -q 1>/dev/null 2>&1
+  docker stack ls 2>/dev/null | grep -q haskell-ide
 }
 
 function resetStackIfNeeded() {
@@ -107,7 +107,7 @@ function resetStackIfNeeded() {
   fi
 
   local resetAsked="$(
-    gdbmtool -r /home/docker/kvstore.db << EOF
+    gdbmtool -r /home/docker/kvstore.db << EOF 2>/dev/null
       fetch reset_stack_on_provision
 EOF
   )"
@@ -118,10 +118,9 @@ EOF
   local value="$(echo $resetAsked | tr [:lower:] [:upper:])"
   [ "$value" == 'FALSE' ] && return 0
 
-  docker swarm leave -f 1>/dev/null 2>&1
-
-  gdbmtool /home/docker/kvstore.db << EOF
-    delete reset_stack_on_provision
+  docker swarm leave -f 1>/dev/null 2>&1 \
+    && gdbmtool /home/docker/kvstore.db << EOF
+      delete reset_stack_on_provision
 EOF
 }
 
@@ -130,7 +129,7 @@ function createSwarmIfNotExists() {
     return 0
   fi
 
-  docker swarm init 1>/dev/null 2>&1
+  docker swarm init --force-new-cluster 1>/dev/null 2>&1
 
   createExternalSecrets 1>/dev/null
 

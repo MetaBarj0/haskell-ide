@@ -270,3 +270,9 @@ augroup CompileCode
   autocmd WinEnter * if &buftype == 'quickfix' | :call AutoScroll() | endif
   autocmd WinLeave * if &buftype == 'quickfix' | :call StopAutoScroll() | endif
 augroup END
+
+augroup HoogleCommands
+  au BufNewFile,BufRead *.hs map <buffer> <F1> :Hoogle
+  au BufNewFile,BufRead *.hs map <buffer> <C-F1> :HoogleClose<CR>
+  au BufNewFile,BufRead *.hs map <buffer> <S-F1> :HoogleLine<CR>
+augroup END
