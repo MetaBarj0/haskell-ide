@@ -34,6 +34,10 @@ capacity in `machine/.env` file
    system is greedy. However, once finished, a lot of space is swiped.
 7. Reboot and provision the machine with `vagrant up --provision`
 8. Enter you IDE with : `vagrant ssh`
+9. Within your dev container, several files will be created using template
+   files passed as configuration. Those files have the `.dist` extension and are
+   read-only. Feel free to modify generated files with values that suit your
+   need (i.e. /home/hsdev/.config/nvim/plugins.vim)
 
 Note that the very first time you will `vagrant ssh`, you'll have to like
 coffe or tea, because a lot of things will be built. It occurs only once

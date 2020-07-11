@@ -23,4 +23,11 @@ fi
 
 cd - 1>/dev/null 2>&1
 
+cd ~/.stack
+if [ ! -f config.yaml ]; then
+  cp -a config.yaml.dist config.yaml
+fi
+
+cd - 1>/dev/null 2>&1
+
 while true; do sleep 10; done

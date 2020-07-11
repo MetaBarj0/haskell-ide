@@ -38,6 +38,11 @@ services:
         uid: '1000'
         gid: '1000'
         mode: 0644
+      - source: stack_config_yaml_dist
+        target: /home/hsdev/.stack/config.yaml.dist
+        uid: '1000'
+        gid: '1000'
+        mode: 0644
 
     secrets:
       - source: haskell-ide_ssh_public_key
@@ -66,6 +71,8 @@ configs:
     file: ./.screenrc
   gitconfig_dist:
     file: ./.gitconfig.dist
+  stack_config_yaml_dist:
+    file: ./config.yaml.dist
   
 secrets:
   haskell-ide_ssh_public_key:

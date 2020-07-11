@@ -118,10 +118,22 @@ EOF
   local value="$(echo $resetAsked | tr [:lower:] [:upper:])"
   [ "$value" == 'FALSE' ] && return 0
 
+  echo "Resetting haskell-ide service..."
   docker swarm leave -f 1>/dev/null 2>&1 \
     && gdbmtool /home/docker/kvstore.db << EOF
       delete reset_stack_on_provision
 EOF
+
+  # these lines deserve an explanation: Once the swarm is dead after the docker
+  # swarm leave -f command execution, sometimes remains an orphan node that
+  # prevent the creation of a new swarm.
+  # To see it, I have to wait an arbitrary amount of time, it's really ugly.
+  # I've not find a better workarount to fix that, maybe I should report such a
+  # behavior...
+  sleep 5
+  if [ "$(docker node ls -q 2>/dev/null | wc -l)" -ne 0 ]; then
+    docker swarm leave -f
+  fi
 }
 
 function createSwarmIfNotExists() {

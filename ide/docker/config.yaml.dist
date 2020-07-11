@@ -1,0 +1,8 @@
+templates:
+  params:
+    author-email: value
+    author-name: value
+    category: value
+    copyright: value
+    github-username: value
+system-ghc: true
