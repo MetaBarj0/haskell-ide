@@ -15,6 +15,10 @@ let mapleader=","
 nmap <silent> <leader>ev :e $MYVIMRC<CR>
 nmap <silent> <leader>sv :so $MYVIMRC<CR>
 
+" navigate through buffers
+nmap <silent> <leader>bn :bn<CR>
+nmap <silent> <leader>bp :bp<CR>
+
 " Basic configuration
 set hidden                                  " Hide buffers instead of closing them
 set nowrap                                  " don''t wrap lines
