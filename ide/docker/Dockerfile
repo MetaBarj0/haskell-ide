@@ -85,6 +85,7 @@ RUN mkdir -p .config/nvim .local/share/nvim/plugged data
 
 VOLUME [ "/home/hsdev/data" ]
 VOLUME [ "/home/hsdev/.local/share/nvim/plugged" ]
+VOLUME [ "/home/hsdev/host" ]
 
 ENTRYPOINT [ "/usr/local/sbin/entrypoint.sh" ]
 HEALTHCHECK --interval=5s --timeout=120s --start-period=5s --retries=3 CMD [ "/usr/local/sbin/healthcheck.sh" ]

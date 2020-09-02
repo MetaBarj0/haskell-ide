@@ -59,6 +59,9 @@ services:
     volumes:
       - data:/home/hsdev/data
       - nvim_plugged:/home/hsdev/.local/share/nvim/plugged
+      - type: bind
+        source: "${SYNCED_HOST_DIR}"
+        target: /home/hsdev/host
 
 configs:
   init_vim_dist:

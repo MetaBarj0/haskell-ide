@@ -90,7 +90,20 @@ function getHealthyIDEContainerId() {
   echo "$(docker ps -q -f health=healthy)"
 }
 
+function querySyncedHostDirectory() {
+  local value="$(
+    gdbmtool -r /home/docker/kvstore.db << EOF 2>/dev/null
+      fetch host_dir
+EOF
+  )"
+
+  echo "$value"
+}
+
 function deployStack() {
+  local syncedHostDir="$(querySyncedHostDirectory)"
+
+  env SYNCED_HOST_DIR="$syncedHostDir" \
   docker stack deploy \
     --with-registry-auth \
     -c "$(getScriptDir)/docker/docker-compose.yml" \
