@@ -25,7 +25,10 @@ capacity in `machine/.env` file
     want to reset the docker stack each time you provision your machine. It
     is useful if you need to reconfigure the stack or update secrets. Note
     however that any state that is not persisted (volume, ...) is discarded
-    at stack reset.
+    at stack reset. There is also a `host_dir` item that contains the path
+    of a directory synced with `./host_synced_folder`. This directory is a link
+    between the `/home/hsdev/host` and you host machine to facilitate information
+    transfer between your development stack and you host.
 4. Create and boot the virtual machine with `vagrant up` in the `machine` directory
 5. Halt the machine with `vagrant halt`. Yeah that's weird but wait...
 6. Add a disk to the newly created virtual machine using the virtual box
