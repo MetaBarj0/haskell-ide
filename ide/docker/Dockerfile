@@ -23,7 +23,33 @@ RUN mkdir -p /home/hsdev/.ssh \
 
 RUN stack upgrade && stack config set system-ghc --global true
 
-FROM base as builder
+FROM base as ctags-builder
+
+USER root
+
+RUN apk add --no-cache \
+    autoconf \
+    automake \
+    pkgconfig \
+    make \
+    gcc \
+    python3 \
+    py3-pip \
+    libseccomp \
+    libtool \
+    yaml-dev \
+    libxml2-dev
+
+RUN pip install docutils
+
+COPY universal-ctags-buildscript.sh /root/universal-ctags-buildscript.sh
+
+RUN dos2unix /root/universal-ctags-buildscript.sh
+RUN chmod +x /root/universal-ctags-buildscript.sh
+
+RUN /root/universal-ctags-buildscript.sh
+
+FROM base as stack-builder
 
 USER root
 
@@ -46,6 +72,10 @@ RUN stack install ormolu
 RUN stack install hoogle
 RUN stack --stack-yaml=stack-8.8.3.yaml exec hoogle generate
 
+RUN sh -c "echo $'extra-deps:\n- json-0.10@sha256:d9fc6b07ce92b8894825a17d2cf14799856767eb30c8bf55962baa579207d799,3210' >> stack.yaml"
+
+RUN stack install hasktags
+
 FROM base
 
 USER root
@@ -56,19 +86,23 @@ RUN apk add --no-cache \
   neovim \
   neovim-doc \
   nodejs \
-  yarn
+  yarn \
+  yaml-dev
 
 RUN mkdir -p /home/hsdev/.local/bin \
   && chown -R hsdev:hsdev /home/hsdev/
 
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hie /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hie-wrapper /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hlint /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/refactor /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/stylish-haskell /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/ormolu /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.local/bin/hoogle /home/hsdev/.local/bin/
-COPY --chown=hsdev:hsdev --from=builder /home/hsdev/.hoogle/ /home/hsdev/.hoogle/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/hie /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/hie-wrapper /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/hlint /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/refactor /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/stylish-haskell /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/ormolu /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/hoogle /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.local/bin/hasktags /home/hsdev/.local/bin/
+COPY --chown=hsdev:hsdev --from=stack-builder /home/hsdev/.hoogle/ /home/hsdev/.hoogle/
+
+COPY --chown=hsdev:hsdev --from=ctags-builder /usr/local/ /usr/local/
 
 ENV PATH="${PATH}:/home/hsdev/.local/bin/"
 

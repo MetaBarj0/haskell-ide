@@ -25,4 +25,5 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons'
 Plug 'twinside/vim-hoogle'
+Plug 'majutsushi/tagbar'
 call plug#end()
